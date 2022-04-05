@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import Header from './Header'
 import styled from 'styled-components'
+import ReviewForm from './ReviewForm'
+import { objectOf } from 'prop-types'
 
 const Wrapper = styled.div`
     margin-left: auto;
@@ -28,7 +30,7 @@ const Main = styled.div`
 const Airline = () => {
 
     const [airline, setAirline] = useState({})
-    const [reviews, setReviews] = useState({})
+    const [review, setReview] = useState({})
     const [loaded, setLoaded] = useState(false)
 
     const { slug } = useParams()
@@ -44,20 +46,49 @@ const Airline = () => {
         
     }, [])
 
+    const handleChange = (e) => {
+        e.preventDefault()
+
+        setReview(Object.assign({}, review, {[e.target.name]: e.target.value}))
+        //console.log("review:", review)
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+
+        const csrfToken = document.querySelector('[name=csrf-token]').content
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
+
+        const airline_id = airline.data.id
+        //console.log("airline_id:", airline_id)
+        //console.log("review:", review)
+        axios.post("/api/v1/reviews", {review, airline_id}).
+            then(resp => {
+                const included = [...airline.included, resp.data.data] // push the new review in resp.data.data into airline.included
+                setAirline({...airline, included}) // this is update airline : so that airline will now have airline and included 
+                setReview({title:'', description: '', score: 0}) // since new review is set, clear out the review.
+            }  ).
+            catch(resp => console.log(resp))
+    }
+
     return (
         
         <Wrapper>
-            <Column>
-                <Main>
-                    { loaded && 
+            { loaded &&
+                <Fragment>
+                <Column>
+                    <Main>
                         <Header attributes={airline.data.attributes}
-                                reviews={airline.included} />
-                    }
-                </Main>
-                <div className="reviews"></div>
-            </Column>
-            <Column></Column>
-            
+                                reviews   ={airline.included} />
+                        <div className="review"></div>
+                    </Main>
+                </Column>
+                <Column>
+                    <ReviewForm handleChange={handleChange} handleSubmit={handleSubmit}
+                                attributes={airline.data.attributes} review={review}/>
+                </Column>
+                </Fragment>
+            }
         </Wrapper>
     )
 }

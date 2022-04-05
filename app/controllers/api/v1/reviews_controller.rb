@@ -1,9 +1,8 @@
 module Api 
     module V1 
-        class AirlinesController < ApplicationController
+        class ReviewsController < ApplicationController
             def create
-                review = Review.new(review_param)
-
+                review = airline.reviews.new(review_param)
                 if review.save
                     render json: ReviewSerializer.new(review).serializable_hash.to_json
                 else
@@ -22,6 +21,10 @@ module Api
             end
 
             private
+
+            def airline
+                @airline ||= Airline.find(params[:airline_id])
+            end
 
             def review_param
                 params.require(:review).permit(:title, :description, :score, :airline_id)
