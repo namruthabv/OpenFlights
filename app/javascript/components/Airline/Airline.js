@@ -71,6 +71,11 @@ const Airline = () => {
             catch(resp => console.log(resp))
     }
 
+    const setRating = (score, e) => {
+        e.preventDefault()
+        setReview({...review, score})
+    }
+
     return (
         
         <Wrapper>
@@ -79,13 +84,13 @@ const Airline = () => {
                 <Column>
                     <Main>
                         <Header attributes={airline.data.attributes}
-                                reviews   ={airline.included} />
+                                reviews={airline.included} />
                         <div className="review"></div>
                     </Main>
                 </Column>
                 <Column>
                     <ReviewForm handleChange={handleChange} handleSubmit={handleSubmit}
-                                attributes={airline.data.attributes} review={review}/>
+                                attributes={airline.data.attributes} setRating={setRating} review={review}/>
                 </Column>
                 </Fragment>
             }
