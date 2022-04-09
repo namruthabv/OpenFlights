@@ -81,7 +81,12 @@ const Airline = () => {
     }
     
     let userReviews 
+    let total, average = 0
     if (loaded && reviews) {
+
+        total = reviews.reduce((total, review) => total + review.attributes.score, 0)
+        average = total > 0 ? (parseFloat(total) / parseFloat(reviews.length)).toFixed(2) : 0
+
         userReviews = reviews.map( (review, index) => {
             return (
                 <Review key={index} id={review.id} attributes={review.attributes} />
@@ -97,7 +102,8 @@ const Airline = () => {
                 <Column>
                     <Main>
                         <Header attributes={airline.data.attributes}
-                                reviews={reviews} />
+                                reviews={reviews} 
+                                average = {average}/>
                         {userReviews}
                     </Main>
                 </Column>

@@ -27,6 +27,7 @@ const TotalOutOf = styled.div`
 const Header = (props) => {
     const { name , image_url, avg_score } = props.attributes
     const total_reviews = props.reviews.length
+    const average = props.average
 
     return(
         <Wrapper>
@@ -35,7 +36,7 @@ const Header = (props) => {
             <div>
                 <TotalReviews>{total_reviews} user reviews</TotalReviews>
                 <div className='starReviews'></div>
-                <TotalOutOf> {avg_score} out of 5</TotalOutOf>
+                <TotalOutOf> {average} out of 5</TotalOutOf>
             </div>
         </Wrapper>
     )
