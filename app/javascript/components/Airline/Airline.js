@@ -5,6 +5,7 @@ import Header from './Header'
 import styled from 'styled-components'
 import ReviewForm from './ReviewForm'
 import { objectOf } from 'prop-types'
+import Review from './Review'
 
 const Wrapper = styled.div`
     margin-left: auto;
@@ -31,6 +32,7 @@ const Airline = () => {
 
     const [airline, setAirline] = useState({})
     const [review, setReview] = useState({})
+    const [reviews, setReviews] = useState({})
     const [loaded, setLoaded] = useState(false)
 
     const { slug } = useParams()
@@ -40,6 +42,7 @@ const Airline = () => {
         axios(url).
         then(resp => { 
             setAirline(resp.data)
+            setReviews(resp.data.included)
             setLoaded(true)
         }).
         catch(resp => console.log(resp))
@@ -64,6 +67,7 @@ const Airline = () => {
         //console.log("review:", review)
         axios.post("/api/v1/reviews", {review, airline_id}).
             then(resp => {
+                setReviews([...reviews, resp.data.data])
                 const included = [...airline.included, resp.data.data] // push the new review in resp.data.data into airline.included
                 setAirline({...airline, included}) // this is update airline : so that airline will now have airline and included 
                 setReview({title:'', description: '', score: 0}) // since new review is set, clear out the review.
@@ -75,6 +79,15 @@ const Airline = () => {
         e.preventDefault()
         setReview({...review, score})
     }
+    
+    let userReviews 
+    if (loaded && reviews) {
+        userReviews = reviews.map( (review, index) => {
+            return (
+                <Review key={index} id={review.id} attributes={review.attributes} />
+            )
+        })
+    }
 
     return (
         
@@ -84,8 +97,8 @@ const Airline = () => {
                 <Column>
                     <Main>
                         <Header attributes={airline.data.attributes}
-                                reviews={airline.included} />
-                        <div className="review"></div>
+                                reviews={reviews} />
+                        {userReviews}
                     </Main>
                 </Column>
                 <Column>
